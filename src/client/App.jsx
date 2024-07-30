@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import axios from "axios";
 import "./App.css";
+import PokemonsDisplay from "./components/PokemonsDisplay";
+import PokeInfoDisplay from "./components/PokeInfoDisplay";
 
 function App() {
   const [pokemons, setPokemons] = useState(null);
+  const [pokeInfo, setPokeInfo] = useState(null)
   const [offset, setOffset] = useState(0);
+  const [showPokeInfo, setShowPokeInfo] = useState(false)
   // invoke useEffect at the top level. It needs 2 args(cb, dependency array)
   
   useEffect(() => {
@@ -24,19 +28,33 @@ function App() {
   const handleNext = () => {
     setOffset(offset + 20)
   }
+
+  const handleSeeMore = (url) => {
+    axios.get(`/pokemon/?url=${url}`)
+    .then(res => {
+      console.log(res.data)
+      setPokeInfo(res.data)
+      setShowPokeInfo(true)
+    }) 
+    .catch(err)
+    console.log(err)
+  }
+
+  const handleGoBack = () => {
+    setShowPokeInfo(fasle)
+  }
   return (
     <div className="App">
-      <button onClick={handleNext}>Next batch</button>
-      {pokemons && pokemons.map
-      (pokemon => {
-        return (
-          <div key={pokemon.name}>
-            <h1>{pokemon.name}</h1>
-            <a href={pokemon.url}>
-            <p>Click me</p></a>
-          </div>
-        )
-      })}
+      {pokeInfo && showPokeInfo ? (
+      <PokeInfoDisplay  pokeInfo={pokeInfo}
+        handleGoBack={handleGoBack}/> 
+      ) : (
+      <PokemonsDisplay
+      pokemons={pokemons} 
+      handleNext={handleNext} 
+      handleSeeMore={handleSeeMore}
+      />
+      )}
     </div>
   );
 }
